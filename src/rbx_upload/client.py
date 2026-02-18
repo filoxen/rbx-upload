@@ -199,7 +199,7 @@ class RobloxClient:
         group_id: int,
         price: int = 5,
     ) -> dict:
-        """Put an asset on sale as a collectible."""
+        """Put an asset on sale."""
         csrf = await self._get_csrf_token()
         data = {
             "saleLocationConfiguration": {"saleLocationType": 1, "places": []},
