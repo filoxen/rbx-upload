@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import Literal
 
@@ -13,6 +14,31 @@ ClothingAssetType = Literal[
     RbxAssetType.PANTS,
 ]
 CreatorType = Literal["User", "Group"]
+
+
+class RbxError(Exception):
+    """Base exception for all rbx-upload errors."""
+    pass
+
+
+class AuthError(RbxError):
+    """Raised when authentication fails or the ROBLOSECURITY token is invalid."""
+    pass
+
+
+class RateLimitError(RbxError):
+    """Raised when hitting Roblox rate limits (HTTP 429)."""
+    pass
+
+
+class UploadError(RbxError):
+    """Raised when an asset upload fails."""
+    pass
+
+
+class AssetNotFoundError(RbxError):
+    """Raised when an asset cannot be found."""
+    pass
 
 
 class RbxCreator:
@@ -54,3 +80,22 @@ class ClothingAsset(RbxAsset):
             description=description,
             asset_type=asset_type,
         )
+
+
+@dataclass
+class BatchUploadItem:
+    image: bytes
+    name: str
+    asset_type: RbxAssetType
+    group_id: int
+    description: str = ""
+
+
+@dataclass
+class BatchResult:
+    succeeded: list[tuple[BatchUploadItem, dict]] = field(default_factory=list)
+    failed: list[tuple[BatchUploadItem, Exception]] = field(default_factory=list)
+
+    @property
+    def all_succeeded(self) -> bool:
+        return len(self.failed) == 0
