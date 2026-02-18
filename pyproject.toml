@@ -1,0 +1,15 @@
+[project]
+name = "rbx-upload"
+version = "0.1.0"
+description = "Roblox asset upload client"
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.25.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rbx_upload"]
