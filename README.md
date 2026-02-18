@@ -102,11 +102,11 @@ rbx-upload onsale 123456789 --name "My Shirt" --group 67890 --publisher 12345 --
 
 Run `rbx-upload --help` or `rbx-upload <command> --help` for all options.
 
-## API
+## [API](https://filoxen.github.io/rbx-upload/)
 
 ### `RobloxClient(roblosecurity, publisher_user_id, proxy=None)`
 
-All methods are async.
+All methods are async. 
 
 | Method | Description |
 |---|---|
