@@ -12,6 +12,11 @@ With CLI support:
 
 ```bash
 uv add "rbx-upload[cli]"
+
+# Or as a tool
+
+uvx rbx-upload[cli] --help
+
 ```
 
 ## Usage
