@@ -6,7 +6,7 @@ try:
     import click
 except ImportError:
     print(
-        "CLI dependencies are not installed. Run: pip install rbx-upload[cli]",
+        "CLI dependencies are not installed. Run: uv add rbx-upload[cli]",
         file=sys.stderr,
     )
     sys.exit(1)
