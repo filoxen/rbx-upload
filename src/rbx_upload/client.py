@@ -42,8 +42,8 @@ class RobloxClient:
         }
         self._csrf_cookies = {".ROBLOSECURITY": roblosecurity}
 
-    def _proxy_url(self, url: str) -> str:
-        if not self._proxy:
+    def _proxy_url(self, url: str, force_direct: bool = False) -> str:
+        if not self._proxy or force_direct:
             return url
         return url.replace("roblox.com", self._proxy)
 
@@ -282,7 +282,7 @@ class RobloxClient:
             "targetType": 0,
         }
         response = await self._http.post(
-            self._proxy_url("https://itemconfiguration.roblox.com/v1/collectibles"),
+            self._proxy_url("https://itemconfiguration.roblox.com/v1/collectibles", force_direct=True),
             json=data,
             headers={
                 "X-CSRF-TOKEN": csrf,
