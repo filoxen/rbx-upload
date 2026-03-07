@@ -303,7 +303,8 @@ class RobloxClient:
         data = response.json()
         collectible_item_id = data.get("collectibleItemId")
         if not collectible_item_id:
-            raise UploadError(f"publish_collectible did not return a collectibleItemId: {data}")
+            # status=0 means already published — look up the ID
+            collectible_item_id = await self.get_collectible_item_id(asset_id)
         return collectible_item_id
 
     async def onsale_asset(
