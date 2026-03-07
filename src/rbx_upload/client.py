@@ -293,11 +293,11 @@ class RobloxClient:
         """Look up the collectible item ID (UUID) for a given asset ID, retrying until available."""
         for _ in range(max_attempts):
             response = await self._http.get(
-                self._proxy_url(f"https://economy.roblox.com/v2/assets/{asset_id}/details"),
+                f"https://itemconfiguration.roblox.com/v1/collectibles/0/{asset_id}",
                 cookies=self._csrf_cookies,
             )
             response.raise_for_status()
-            collectible_item_id = response.json().get("CollectibleItemId")
+            collectible_item_id = response.json().get("collectibleItemId")
             if collectible_item_id:
                 return collectible_item_id
             await asyncio.sleep(poll_interval)

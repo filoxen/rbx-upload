@@ -1,6 +1,6 @@
 [project]
 name = "rbx-upload"
-version = "0.2.6"
+version = "0.2.7"
 description = "Roblox asset upload client"
 requires-python = ">=3.13"
 dependencies = [
