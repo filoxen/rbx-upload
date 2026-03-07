@@ -297,7 +297,7 @@ class RobloxClient:
         if response.status_code == 429:
             raise RateLimitError("Rate limit hit during collectible publish.")
         if response.status_code in (401, 403):
-            raise AuthError("Not authorized to publish this collectible.")
+            raise AuthError(f"Not authorized to publish this collectible ({response.status_code}): {response.text}")
 
         response.raise_for_status()
         data = response.json()
