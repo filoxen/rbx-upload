@@ -291,9 +291,11 @@ class RobloxClient:
 
     async def get_collectible_item_id(self, asset_id: int) -> str | None:
         """Look up the collectible item ID (UUID) for a given asset ID."""
+        csrf = await self._get_csrf_token()
         response = await self._http.post(
             self._proxy_url("https://catalog.roblox.com/v1/catalog/items/details"),
             json={"items": [{"itemType": "Asset", "id": asset_id}]},
+            headers={"X-CSRF-TOKEN": csrf},
             cookies=self._csrf_cookies,
         )
         response.raise_for_status()
