@@ -289,18 +289,19 @@ class RobloxClient:
         response.raise_for_status()
         return response.json() if response.text else {}
 
-    async def get_collectible_item_id(self, asset_id: int) -> str | None:
-        """Look up the collectible item ID (UUID) for a given asset ID."""
-        csrf = await self._get_csrf_token()
-        response = await self._http.post(
-            self._proxy_url("https://catalog.roblox.com/v1/catalog/items/details"),
-            json={"items": [{"itemType": "Asset", "id": asset_id}]},
-            headers={"X-CSRF-TOKEN": csrf},
-            cookies=self._csrf_cookies,
-        )
-        response.raise_for_status()
-        items = response.json().get("data", [])
-        return items[0].get("collectibleItemId") if items else None
+    async def get_collectible_item_id(self, asset_id: int, max_attempts: int = 10, poll_interval: float = 3.0) -> str:
+        """Look up the collectible item ID (UUID) for a given asset ID, retrying until available."""
+        for _ in range(max_attempts):
+            response = await self._http.get(
+                self._proxy_url(f"https://economy.roblox.com/v2/assets/{asset_id}/details"),
+                cookies=self._csrf_cookies,
+            )
+            response.raise_for_status()
+            collectible_item_id = response.json().get("CollectibleItemId")
+            if collectible_item_id:
+                return collectible_item_id
+            await asyncio.sleep(poll_interval)
+        raise UploadError(f"collectibleItemId not available for asset {asset_id} after {max_attempts} attempts.")
 
     async def close(self):
         """Close the underlying HTTP client."""
