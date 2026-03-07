@@ -255,35 +255,23 @@ class RobloxClient:
 
     async def onsale_asset(
         self,
-        asset_id: int,
-        name: str,
-        description: str,
-        group_id: int,
+        collectible_item_id: str,
         price: int = 5,
     ) -> dict:
         """Put an asset on sale."""
         csrf = await self._get_csrf_token()
-        data = {
-            "saleLocationConfiguration": {"saleLocationType": 1, "places": []},
-            "targetId": asset_id,
-            "priceInRobux": price,
-            "publishingType": 2,
-            "idempotencyToken": str(uuid.uuid4()),
-            "publisherUserId": self._publisher_user_id,
-            "creatorGroupId": group_id,
-            "name": name,
-            "description": description,
-            "isFree": False,
-            "agreedPublishingFee": 0,
-            "priceOffset": 0,
-            "quantity": 0,
-            "quantityLimitPerUser": 0,
-            "resaleRestriction": 2,
-            "targetType": 0,
-        }
-        response = await self._http.post(
-            self._proxy_url("https://itemconfiguration.roblox.com/v1/collectibles", force_direct=True),
-            json=data,
+        response = await self._http.patch(
+            f"https://itemconfiguration.roblox.com/v1/collectibles/{collectible_item_id}",
+            json={
+                "saleLocationConfiguration": {"saleLocationType": 1, "places": []},
+                "saleStatus": 0,
+                "quantityLimitPerUser": 0,
+                "resaleRestriction": 2,
+                "priceInRobux": price,
+                "priceOffset": 0,
+                "optOutFromRegionalPricing": False,
+                "isFree": False,
+            },
             headers={
                 "X-CSRF-TOKEN": csrf,
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
@@ -299,7 +287,7 @@ class RobloxClient:
             raise AuthError("Not authorized to put this asset on sale.")
 
         response.raise_for_status()
-        return response.json()
+        return response.json() if response.text else {}
 
     async def close(self):
         """Close the underlying HTTP client."""
