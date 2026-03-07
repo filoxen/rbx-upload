@@ -289,6 +289,17 @@ class RobloxClient:
         response.raise_for_status()
         return response.json() if response.text else {}
 
+    async def get_collectible_item_id(self, asset_id: int) -> str | None:
+        """Look up the collectible item ID (UUID) for a given asset ID."""
+        response = await self._http.post(
+            self._proxy_url("https://catalog.roblox.com/v1/catalog/items/details"),
+            json={"items": [{"itemType": "Asset", "id": asset_id}]},
+            cookies=self._csrf_cookies,
+        )
+        response.raise_for_status()
+        items = response.json().get("data", [])
+        return items[0].get("collectibleItemId") if items else None
+
     async def close(self):
         """Close the underlying HTTP client."""
         await self._http.aclose()
