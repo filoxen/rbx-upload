@@ -253,6 +253,59 @@ class RobloxClient:
         await asyncio.gather(*[_upload_one(item) for item in items])
         return result
 
+    async def publish_collectible(
+        self,
+        asset_id: int,
+        group_id: int,
+        name: str,
+        description: str,
+        price: int = 5,
+    ) -> str:
+        """Publish an asset as a Limited collectible. Returns the collectibleItemId."""
+        csrf = await self._get_csrf_token()
+        response = await self._http.post(
+            "https://itemconfiguration.roblox.com/v1/collectibles",
+            json={
+                "isRentalOptIn": False,
+                "idempotencyToken": str(uuid.uuid4()),
+                "targetId": asset_id,
+                "targetType": 0,
+                "publishingType": 2,
+                "agreedPublishingFee": 10,
+                "creatorGroupId": group_id,
+                "publisherUserId": self._publisher_user_id,
+                "quantity": 0,
+                "quantityLimitPerUser": 0,
+                "resaleRestriction": 2,
+                "priceInRobux": price,
+                "priceOffset": 0,
+                "optOutFromRegionalPricing": False,
+                "isFree": False,
+                "saleLocationConfiguration": {"saleLocationType": 1, "places": []},
+                "name": name,
+                "description": description,
+            },
+            headers={
+                "X-CSRF-TOKEN": csrf,
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
+                "Referer": "https://create.roblox.com/",
+                "Origin": "https://create.roblox.com",
+            },
+            cookies=self._csrf_cookies,
+        )
+
+        if response.status_code == 429:
+            raise RateLimitError("Rate limit hit during collectible publish.")
+        if response.status_code in (401, 403):
+            raise AuthError("Not authorized to publish this collectible.")
+
+        response.raise_for_status()
+        data = response.json()
+        collectible_item_id = data.get("collectibleItemId")
+        if not collectible_item_id:
+            raise UploadError(f"publish_collectible did not return a collectibleItemId: {data}")
+        return collectible_item_id
+
     async def onsale_asset(
         self,
         collectible_item_id: str,
